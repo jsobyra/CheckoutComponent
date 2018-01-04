@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class StorageRepository {
     private static StorageRepository storageRepository = new StorageRepository();
     private final HashMap<String, Item> items = new HashMap<>();
-    private final String storageFile = "products.csv";
+    private final String storageFile = Properties.getProperties().getProperty("storageFile");
 
     private StorageRepository() {
         ClassLoader classLoader = getClass().getClassLoader();

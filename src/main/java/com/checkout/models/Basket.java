@@ -1,13 +1,19 @@
 package com.checkout.models;
 
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by user on 30.12.17.
  */
 public class Basket {
     private final int id;
-    private final HashMap<Item, Integer> items;
+    private final Map<Item, Integer> items;
 
     public Basket(int id) {
         this.id = id;
@@ -18,7 +24,7 @@ public class Basket {
         return id;
     }
 
-    public HashMap<Item, Integer> getItems() {
+    public Map<Item, Integer> getItems() {
         return items;
     }
 

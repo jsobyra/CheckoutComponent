@@ -2,18 +2,25 @@ package com.checkout.models;
 
 import com.checkout.models.discounts.Discount;
 import com.checkout.models.discounts.NYDiscount;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.jws.Oneway;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Receipt {
+    @Autowired
+    private BasketFactory basketFactory;
     private final int basketId;
-    private final HashMap<Item, Integer> boughtItems;
+    private final Map<Item, Integer> boughtItems;
     private int sum;
 
     public Receipt(int basketId) {
         this.basketId = basketId;
-        this.boughtItems = BasketFactory.getBasketIfExists(basketId).get().getItems();
+        System.err.println(basketFactory);
+        this.boughtItems = basketFactory.getBasketIfExists(basketId).get().getItems();
         this.sum = count();
     }
 
@@ -43,7 +50,7 @@ public class Receipt {
         return sum;
     }
 
-    public HashMap<Item, Integer> getBoughtItems() {
+    public Map<Item, Integer> getBoughtItems() {
         return boughtItems;
     }
 }

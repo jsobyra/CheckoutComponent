@@ -1,8 +1,11 @@
 package com.checkout.models;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class ReceiptFactory {
 
-    public static Receipt createReceipt(int basketId) {
+    public Receipt createReceipt(int basketId) {
         return new Receipt(basketId);
     }
 }
