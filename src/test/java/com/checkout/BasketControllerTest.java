@@ -1,8 +1,6 @@
 package com.checkout;
 
 import com.checkout.models.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,16 +10,16 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 @RunWith (SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BasketControllerTest {
-   	@Autowired
+    @Autowired
     private TestRestTemplate restTemplate;
-   	@Autowired
+    @Autowired
     private BasketFactory basketFactory;
     @Autowired
     private StorageRepository storageRepository;
@@ -34,157 +32,185 @@ public class BasketControllerTest {
     }
 
     @Test
-    public void openBasketWithCorrectParams() throws Exception{
-        ResponseEntity<String> response = this.restTemplate.getForEntity("/open?id=100", String.class);
+    public void openBasket() throws Exception{
+        int basketId = 100;
+        ResponseEntity<String> openResponse = openBasketAPI(basketId);
+        Basket openedBasket = openBasket(basketId);
 
-    	assertThat(response.getBody()).isEqualTo(basketFactory.createIfNotExistBasket(100).toString());
-    	assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    	assertThat(openResponse.getBody()).isEqualTo(openedBasket.toString());
+    	assertThat(openResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    public void openBasketWithIncorrectParams() {
-        ResponseEntity<String> response = this.restTemplate.getForEntity("/open", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
+    public void scanOneProduct() {
+        int basketId = 101;
+        String productName = "B";
+        int quantity = 4;
 
-    @Test
-    public void scanOneProductWithCorrectParams() {
-        ResponseEntity<String> openResponse = this.restTemplate.getForEntity("/open?id=101", String.class);
+        ResponseEntity<String> openResponse = openBasketAPI(basketId);
+        Basket openedBasket = openBasket(basketId);
 
-        assertThat(openResponse.getBody()).isEqualTo(basketFactory.createIfNotExistBasket(101).toString());
+        assertThat(openResponse.getBody()).isEqualTo(openedBasket.toString());
         assertThat(openResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse = this.restTemplate.getForEntity("/scan?id=101&name=B&quantity=4", String.class);
+        ResponseEntity<String> scanResponse = scanBasketAPI(basketId, productName, quantity);
+        Basket scannedBasket = scanBasket(basketId, productName, quantity);
 
-        basketFactory
-                .getBasketIfExists(101)
-                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem("B"), 4));
-
-        assertThat(scanResponse.getBody()).isEqualTo(basketFactory.getBasketIfExists(101).orElse(null).toString());
+        assertThat(scanResponse.getBody()).isEqualTo(scannedBasket.toString());
         assertThat(scanResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    public void scanTwoProductWithCorrectParams() {
-        ResponseEntity<String> openResponse = this.restTemplate.getForEntity("/open?id=102", String.class);
+    public void scanTwoProducts() {
+        int basketId = 102;
+        String productName1 = "B";
+        int quantity1 = 4;
+        String productName2 = "A";
+        int quantity2 = 2;
 
-        assertThat(openResponse.getBody()).isEqualTo(basketFactory.createIfNotExistBasket(102).toString());
+        ResponseEntity<String> openResponse = openBasketAPI(basketId);
+        Basket openedBasket = openBasket(basketId);
+
+        assertThat(openResponse.getBody()).isEqualTo(openedBasket.toString());
         assertThat(openResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse1 = this.restTemplate.getForEntity("/scan?id=102&name=B&quantity=4", String.class);
+        ResponseEntity<String> scanResponse1 = scanBasketAPI(basketId, productName1, quantity1);
+        Basket scannedBasket1 = scanBasket(basketId, productName1, quantity1);
 
-        basketFactory
-                .getBasketIfExists(102)
-                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem("B"), 4));
-
-        assertThat(scanResponse1.getBody()).isEqualTo(basketFactory.getBasketIfExists(102).orElse(null).toString());
+        assertThat(scanResponse1.getBody()).isEqualTo(scannedBasket1.toString());
         assertThat(scanResponse1.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse2 = this.restTemplate.getForEntity("/scan?id=102&name=A&quantity=3", String.class);
+        ResponseEntity<String> scanResponse2 = scanBasketAPI(basketId, productName2, quantity2);
+        Basket scannedBasket2 = scanBasket(basketId, productName2, quantity2);
 
-        basketFactory
-                .getBasketIfExists(102)
-                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem("A"), 3));
-
-        assertThat(scanResponse2.getBody()).isEqualTo(basketFactory.getBasketIfExists(102).orElse(null).toString());
+        assertThat(scanResponse2.getBody()).isEqualTo(scannedBasket2.toString());
         assertThat(scanResponse2.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    public void scanProductAndUpdateQuantityWithCorrectParams() {
-        ResponseEntity<String> openResponse = this.restTemplate.getForEntity("/open?id=103", String.class);
+    public void scanProductAndUpdateQuantity() {
+        int basketId = 103;
+        String productName = "B";
+        int quantity1 = 4;
+        int quantity2 = 2;
 
-        assertThat(openResponse.getBody()).isEqualTo(basketFactory.createIfNotExistBasket(103).toString());
+        ResponseEntity<String> openResponse = openBasketAPI(basketId);
+        Basket openedBasket = openBasket(basketId);
+
+        assertThat(openResponse.getBody()).isEqualTo(openedBasket.toString());
         assertThat(openResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse1 = this.restTemplate.getForEntity("/scan?id=103&name=B&quantity=4", String.class);
+        ResponseEntity<String> scanResponse1 = scanBasketAPI(basketId, productName, quantity1);
+        Basket scannedBasket1 = scanBasket(basketId, productName, quantity1);
 
-        basketFactory
-                .getBasketIfExists(103)
-                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem("B"), 4));
-
-        assertThat(scanResponse1.getBody()).isEqualTo(basketFactory.getBasketIfExists(103).orElse(null).toString());
+        assertThat(scanResponse1.getBody()).isEqualTo(scannedBasket1.toString());
         assertThat(scanResponse1.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse2 = this.restTemplate.getForEntity("/scan?id=103&name=B&quantity=4", String.class);
+        ResponseEntity<String> scanResponse2 = scanBasketAPI(basketId, productName, quantity2);
+        Basket scannedBasket2 = scanBasket(basketId, productName, quantity2);
 
-        basketFactory
-                .getBasketIfExists(103)
-                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem("B"), 4));
-
-        assertThat(scanResponse2.getBody()).isEqualTo(basketFactory.getBasketIfExists(103).orElse(null).toString());
+        assertThat(scanResponse2.getBody()).isEqualTo(scannedBasket2.toString());
         assertThat(scanResponse2.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    public void scanOneProductWithIncorrectParams() {
-        ResponseEntity<String> openResponse = this.restTemplate.getForEntity("/open?id=104", String.class);
+    public void closeEmptyBasket() throws Exception{
+        int basketId = 104;
+        ResponseEntity<String> openResponse = openBasketAPI(basketId);
+        Basket openedBasket = openBasket(basketId);
 
-        assertThat(openResponse.getBody()).isEqualTo(basketFactory.createIfNotExistBasket(104).toString());
+        assertThat(openResponse.getBody()).isEqualTo(openedBasket.toString());
         assertThat(openResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse = this.restTemplate.getForEntity("/scan?", String.class);
+        ResponseEntity<String> closeResponse = closeBasketAPI(basketId);
+        Receipt closedBasket = closeBasket(basketId);
 
-        assertThat(scanResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    public void closeEmptyBasketWithCorrectParams() throws Exception{
-        ResponseEntity<String> openResponse = this.restTemplate.getForEntity("/open?id=105", String.class);
-
-        assertThat(openResponse.getBody()).isEqualTo(basketFactory.createIfNotExistBasket(105).toString());
-        assertThat(openResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        ResponseEntity<String> closeResponse = this.restTemplate.getForEntity("/close?id=105", String.class);
-
-        assertThat(closeResponse.getBody()).isEqualTo(receiptFactory.createReceipt(basketFactory.getBasketIfExists(105)).toString());
+        assertThat(closeResponse.getBody()).isEqualTo(closedBasket.toString());
         assertThat(closeResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    public void closeWithOneProductWithCorrectParams() {
-        ResponseEntity<String> openResponse = this.restTemplate.getForEntity("/open?id=101", String.class);
+    public void closeBasketWithOneProduct() {
+        int basketId = 105;
+        String productName = "B";
+        int quantity = 4;
 
-        assertThat(openResponse.getBody()).isEqualTo(basketFactory.createIfNotExistBasket(101).toString());
+        ResponseEntity<String> openResponse = openBasketAPI(basketId);
+        Basket openedBasket = openBasket(basketId);
+
+        assertThat(openResponse.getBody()).isEqualTo(openedBasket.toString());
         assertThat(openResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse = this.restTemplate.getForEntity("/scan?id=101&name=B&quantity=4", String.class);
+        ResponseEntity<String> scanResponse = scanBasketAPI(basketId, productName, quantity);
+        Basket scannedBasket = scanBasket(basketId, productName, quantity);
 
-        basketFactory
-                .getBasketIfExists(101)
-                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem("B"), 4));
-
-        assertThat(scanResponse.getBody()).isEqualTo(basketFactory.getBasketIfExists(101).orElse(null).toString());
+        assertThat(scanResponse.getBody()).isEqualTo(scannedBasket.toString());
         assertThat(scanResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+        ResponseEntity<String> closeResponse = closeBasketAPI(basketId);
+        Receipt closedBasket = closeBasket(basketId);
 
+        assertThat(closeResponse.getBody()).isEqualTo(closedBasket.toString());
+        assertThat(closeResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    public void closeWithTwoProductWithCorrectParams() {
-        ResponseEntity<String> openResponse = this.restTemplate.getForEntity("/open?id=102", String.class);
+    public void closeWithTwoProduct() {
+        int basketId = 106;
+        String productName1 = "B";
+        int quantity1 = 4;
+        String productName2 = "A";
+        int quantity2 = 2;
 
-        assertThat(openResponse.getBody()).isEqualTo(basketFactory.createIfNotExistBasket(102).toString());
+        ResponseEntity<String> openResponse = openBasketAPI(basketId);
+        Basket openedBasket = openBasket(basketId);
+
+        assertThat(openResponse.getBody()).isEqualTo(openedBasket.toString());
         assertThat(openResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse1 = this.restTemplate.getForEntity("/scan?id=102&name=B&quantity=4", String.class);
+        ResponseEntity<String> scanResponse1 = scanBasketAPI(basketId, productName1, quantity1);
+        Basket scannedBasket1 = scanBasket(basketId, productName1, quantity1);
 
-        basketFactory
-                .getBasketIfExists(102)
-                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem("B"), 4));
-
-        assertThat(scanResponse1.getBody()).isEqualTo(basketFactory.getBasketIfExists(102).orElse(null).toString());
+        assertThat(scanResponse1.getBody()).isEqualTo(scannedBasket1.toString());
         assertThat(scanResponse1.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<String> scanResponse2 = this.restTemplate.getForEntity("/scan?id=102&name=A&quantity=3", String.class);
+        ResponseEntity<String> scanResponse2 = scanBasketAPI(basketId, productName2, quantity2);
+        Basket scannedBasket2 = scanBasket(basketId, productName2, quantity2);
 
-        basketFactory
-                .getBasketIfExists(102)
-                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem("A"), 3));
-
-        assertThat(scanResponse2.getBody()).isEqualTo(basketFactory.getBasketIfExists(102).orElse(null).toString());
+        assertThat(scanResponse2.getBody()).isEqualTo(scannedBasket2.toString());
         assertThat(scanResponse2.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        ResponseEntity<String> closeResponse = closeBasketAPI(basketId);
+        Receipt closedBasket = closeBasket(basketId);
+
+        assertThat(closeResponse.getBody()).isEqualTo(closedBasket.toString());
+        assertThat(closeResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+    private ResponseEntity<String> openBasketAPI(int basketId) {
+        return this.restTemplate.getForEntity("/open?id=" + basketId, String.class);
+    }
 
+    private ResponseEntity<String> scanBasketAPI(int basketId, String productName, int quantity) {
+        return this.restTemplate.getForEntity("/scan?id=" + basketId + "&name=" + productName + "&quantity=" +quantity, String.class);
+    }
+
+    private ResponseEntity<String> closeBasketAPI(int basketId) {
+        return this.restTemplate.getForEntity("/close?id=" + basketId, String.class);
+    }
+
+    private Basket openBasket(int basketId) {
+        return basketFactory.createIfNotExistBasket(basketId);
+    }
+
+    private Basket scanBasket(int basketId, String productName, int quantity) {
+        basketFactory
+                .getBasketIfExists(basketId)
+                .ifPresent(basket -> basket.updateBasket(storageRepository.getItem(productName), quantity));
+        return basketFactory.getBasketIfExists(basketId).orElse(null);
+    }
+
+    private Receipt closeBasket(int basketId) {
+        return receiptFactory.createReceipt(basketFactory.getBasketIfExists(basketId));
+    }
 }

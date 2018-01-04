@@ -1,8 +1,5 @@
 package com.checkout.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import java.util.HashMap;
 import java.util.Map;
 
