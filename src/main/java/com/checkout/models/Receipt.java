@@ -8,7 +8,7 @@ import java.util.Map;
 public class Receipt {
     private final int basketId;
     private final Map<Item, Integer> boughtItems;
-    private int sum;
+    private final int sum;
 
     public Receipt(Basket basket) {
         this.basketId = basket.getId();
@@ -44,5 +44,18 @@ public class Receipt {
 
     public Map<Item, Integer> getBoughtItems() {
         return boughtItems;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{\"basketId\":" + basketId);
+        stringBuilder.append(",\"boughtItems\":{");
+        boughtItems.entrySet().forEach((item) -> stringBuilder.append("\"" + item.getKey() + "\"" + ":" + item.getValue() + ","));
+        if(stringBuilder.toString().endsWith(",")) stringBuilder.setLength(stringBuilder.length() - 1);
+        stringBuilder.append("}");
+        stringBuilder.append(",\"sum\":" + sum);
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 }
