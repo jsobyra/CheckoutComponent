@@ -1,8 +1,6 @@
 package com.checkout.models.discounts;
 
 import com.checkout.models.Item;
-
-import java.util.HashMap;
 import java.util.Map;
 
 public class NYDiscount implements Discount {

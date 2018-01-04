@@ -1,7 +1,6 @@
 package com.checkout.models;
 
-import org.springframework.stereotype.Service;
-
+import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -9,7 +8,7 @@ import java.util.Optional;
  * Created by user on 30.12.17.
  */
 
-@Service
+@Component
 public class BasketFactory {
     private static final HashMap<Integer, Basket> basketMap = new HashMap<>();
 

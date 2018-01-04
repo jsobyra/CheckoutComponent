@@ -1,9 +1,7 @@
 package com.checkout.models;
 
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,5 +28,16 @@ public class Basket {
 
     public void updateBasket(Item item, int amount) {
         items.put(item, amount);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{\"id\":" + id);
+        stringBuilder.append(",\"items\":{");
+        items.entrySet().forEach((item) -> stringBuilder.append("\"" + item.getKey() + "\"" + ":" + item.getValue() + ","));
+        if(stringBuilder.toString().endsWith(",")) stringBuilder.setLength(stringBuilder.length() - 1);
+        stringBuilder.append("}}");
+        return stringBuilder.toString();
     }
 }

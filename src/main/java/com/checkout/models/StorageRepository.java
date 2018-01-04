@@ -1,14 +1,14 @@
 package com.checkout.models;
 
+import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
-
+@Component
 public class StorageRepository {
-    private static StorageRepository storageRepository = new StorageRepository();
     private final HashMap<String, Item> items = new HashMap<>();
     private final String storageFile = Properties.getProperties().getProperty("storageFile");
 
@@ -21,10 +21,6 @@ public class StorageRepository {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static StorageRepository getStorage() {
-        return storageRepository;
     }
 
     private void addItem(Item item) {
