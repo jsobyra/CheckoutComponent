@@ -192,7 +192,7 @@ public class BasketControllerTest {
     }
 
     private ResponseEntity<String> scanBasketAPI(int basketId, String productName, int quantity) {
-        return this.restTemplate.getForEntity("/scan?id=" + basketId + "&name=" + productName + "&quantity=" +quantity, String.class);
+        return this.restTemplate.postForEntity("/scan?id=" + basketId + "&name=" + productName + "&quantity=" +quantity, null, String.class);
     }
 
     private ResponseEntity<String> closeBasketAPI(int basketId) {
