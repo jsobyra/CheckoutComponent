@@ -5,3 +5,6 @@ gradle/
 .gradle/
 .idea/
 .DS_Store
+CheckoutComponent.iml
+gradlew
+gradlew.bat
